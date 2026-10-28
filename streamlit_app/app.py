@@ -3,6 +3,12 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+rf_model_path = BASE_DIR / "rf_risk_model.pkl"
+
+
 st.set_page_config(page_title="Customer Risk Models", page_icon="📊", layout="centered")
 
 RISK_LABELS = {0: "Low", 1: "Medium", 2: "High"}
@@ -40,7 +46,7 @@ def show_prediction(classes, proba):
 def page_random_forest():
     st.header("Random Forest — Customer Risk")
     try:
-        art = load_pickle("rf_risk_model.pkl")
+        art = load_pickle(rf_model_path)
     except FileNotFoundError:
         st.error("rf_risk_model.pkl not found. Run the save cell at the end of your notebook first.")
         return
@@ -79,11 +85,12 @@ TX_TYPES = ["CASH_IN", "CASH_OUT", "DEBIT", "PAYMENT", "TRANSFER"]  # CASH_IN = 
 
 @st.cache_resource
 def load_fraud_artifacts():
-    base = "model_files"
+    model_dir = BASE_DIR / "model_files"
+
     return (
-        joblib.load(f"{base}/xgboost_fraud_model.pkl"),
-        joblib.load(f"{base}/robust_scaler.pkl"),
-        joblib.load(f"{base}/model_columns.pkl"),
+        joblib.load(model_dir / "xgboost_fraud_model.pkl"),
+        joblib.load(model_dir / "robust_scaler.pkl"),
+        joblib.load(model_dir / "model_columns.pkl"),
     )
 
 
